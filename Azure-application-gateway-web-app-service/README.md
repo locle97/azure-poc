@@ -124,3 +124,8 @@ Azure Application Gateway provides an application delivery controller (ADC) as a
 
 1. Once the Application Gateway is deployed and configured, navigate to the public IP address of the Application Gateway.
 2. Verify that the traffic is correctly routed to your Web App.
+
+### Step 7: Clean up resource group
+
+1. Navigate to your resource group.
+2. Click on Delete resource group.
