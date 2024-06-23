@@ -40,10 +40,7 @@ azure-poc/
 │   ├── <POC3-files>
 └── README.md
 ```
-
-POC1/: Contains files and documentation related to the first POC.
-POC2/: Contains files and documentation related to the second POC.
-POC3/: Contains files and documentation related to the third POC.
+POCx/: Contains files and documentation related to the first POC.
 
 ## How to use
 1. Clone the repository:
