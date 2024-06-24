@@ -219,7 +219,31 @@ az network vnet subnet update \
   --service-endpoints Microsoft.Web
 ```
 
-### Step 7: Test
+### Step 7: Update Access Restrictions of Web App Service
+
+Disable public access and enable virtual network access from Application Gateway only
+```bash
+# Disable public access
+az webapp config access-restriction add \
+  --resource-group $RESOURCE_GROUP \
+  --name $WEBAPP_NAME \
+  --rule-name "DenyPublicAccess" \
+  --action Deny \
+  --ip-address 0.0.0.0/0 \
+  --priority 100
+
+# Enable access from Application Gateway subnet
+az webapp config access-restriction add \
+  --resource-group $RESOURCE_GROUP \
+  --name $WEBAPP_NAME \
+  --rule-name "AllowAGSubnet" \
+  --action Allow \
+  --vnet-name $VNET_NAME \
+  --subnet $SUBNET_DEFAULT \
+  --priority 200
+```
+
+### Step 8: Test
 
 1. Get the public IP of the Application Gateway:
 ```bash
@@ -228,7 +252,8 @@ az network public-ip show --resource-group $RESOURCE_GROUP --name $PUBLIC_IP_NAM
 
 2. Open the public IP address in a web browser to verify the configuration.
 
-### Step 8: Clean Up Resource Group
-```bash
+### Step 9: Clean Up Resource Group
 az group delete --name $RESOURCE_GROUP --yes --no-wait
-```
+
+## Conclusion
+This POC provides a comprehensive guide to setting up and configuring an Azure Application Gateway and linking it to a Web App Service using Azure CLI. It also includes steps to restrict access to the Web App Service to ensure only traffic from the Application Gateway is allowed. For further details, refer to the official Azure Application Gateway documentation.
