@@ -253,7 +253,9 @@ az network public-ip show --resource-group $RESOURCE_GROUP --name $PUBLIC_IP_NAM
 2. Open the public IP address in a web browser to verify the configuration.
 
 ### Step 9: Clean Up Resource Group
+```bash
 az group delete --name $RESOURCE_GROUP --yes --no-wait
+```
 
 ## Conclusion
 This POC provides a comprehensive guide to setting up and configuring an Azure Application Gateway and linking it to a Web App Service using Azure CLI. It also includes steps to restrict access to the Web App Service to ensure only traffic from the Application Gateway is allowed. For further details, refer to the official Azure Application Gateway documentation.
