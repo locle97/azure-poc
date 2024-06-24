@@ -1,0 +1,16 @@
+<h2>Hello, frontend is running</h2>
+<div *ngIf="error">
+  <div class="alert alert-danger" role="alert">
+    <b>Failed to connect to Backend:</b> {{ error.message }}
+  </div>
+</div>
+
+<div *ngIf="data">
+<div class="alert alert-success" role="alert">
+  <b>Successfully connected to Backend:</b>
+  <ul>
+    <li *ngFor="let item of data">
+        {{ item | json }}
+    </li>
+  </ul>
+</div>
