@@ -129,3 +129,106 @@ Azure Application Gateway provides an application delivery controller (ADC) as a
 
 1. Navigate to your resource group.
 2. Click on Delete resource group.
+
+## Azure CLI Steps
+
+### Step 1: Set Environment Variables
+
+Before running the CLI commands, export the necessary environment variables:
+
+```bash
+export RESOURCE_GROUP="AGResourceGroup"
+export LOCATION="southeastasia"
+export VNET_NAME="AGVNet"
+export SUBNET_DEFAULT="default"
+export SUBNET_APP="app"
+export APP_SERVICE_PLAN="MyAppServicePlan"
+export WEBAPP_NAME="agwebappservice"
+export APPGW_NAME="AGApplicationGateway"
+export PUBLIC_IP_NAME="MyAGPublicIP"
+```
+
+### Step 2: Create Resource Group
+
+```bash
+az group create --name $RESOURCE_GROUP --location $LOCATION
+```
+
+### Step 3: Configure Virtual Network
+
+```bash
+az network vnet create \
+  --resource-group $RESOURCE_GROUP \
+  --name $VNET_NAME \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name $SUBNET_DEFAULT \
+  --subnet-prefix 10.0.0.0/24
+
+az network vnet subnet create \
+  --resource-group $RESOURCE_GROUP \
+  --vnet-name $VNET_NAME \
+  --name $SUBNET_APP \
+  --address-prefix 10.0.1.0/24
+```
+
+### Step 4: Create Web App Service
+
+```bash
+az appservice plan create --name $APP_SERVICE_PLAN --resource-group $RESOURCE_GROUP --sku B1 --is-linux
+
+az webapp create --resource-group $RESOURCE_GROUP --plan $APP_SERVICE_PLAN --name $WEBAPP_NAME --deployment-container-image-name nginx
+```
+
+### Step 5: Create Application Gateway
+
+```bash
+az network public-ip create --resource-group $RESOURCE_GROUP --name $PUBLIC_IP_NAME --allocation-method Static
+
+az network application-gateway create \
+   --name $APPGW_NAME \
+   --location $LOCATION \
+   --resource-group $RESOURCE_GROUP \
+   --capacity 1 \
+   --sku Standard_v2 \
+   --http-settings-cookie-based-affinity Enabled \
+   --frontend-port 80 \
+   --public-ip-address $PUBLIC_IP_NAME \
+   --vnet-name $VNET_NAME \
+   --subnet $SUBNET_DEFAULT \
+   --servers $WEBAPP_NAME.azurewebsites.net \
+   --priority 100 \
+   --http-settings-port 443 \
+   --http-settings-protocol https
+```
+
+### Step 6: Link Web App Service to Virtual Network and Add Service Endpoint for Application Gateway
+
+1. Link Web App Service to Virtual Network
+
+```bash
+az webapp vnet-integration add --name $WEBAPP_NAME --resource-group $RESOURCE_GROUP --vnet $VNET_NAME --subnet $SUBNET_APP
+```
+
+2. Add Service Endpoint for Application Gateway
+
+```bash
+az network vnet subnet update \
+  --resource-group $RESOURCE_GROUP \
+  --vnet-name $VNET_NAME \
+  --name $SUBNET_APP \
+  --service-endpoints Microsoft.Web
+```
+
+### Step 7: Test
+
+1. Get the public IP of the Application Gateway:
+```bash
+az network public-ip show --resource-group $RESOURCE_GROUP --name $PUBLIC_IP_NAME --query ipAddress --output tsv
+```
+
+2. Open the public IP address in a web browser to verify the configuration.
+
+### Step 8: Clean Up Resource Group
+```bash
+az group delete --name $RESOURCE_GROUP --yes --no-wait
+```
